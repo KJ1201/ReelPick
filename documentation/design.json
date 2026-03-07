@@ -1,0 +1,764 @@
+{
+  "_meta": {
+    "name": "ReelShop Design System",
+    "version": "1.0.0",
+    "inspiration": "Google Doppl (Google Labs) visual language",
+    "purpose": "AI-replicable design token and pattern system for Cursor AI and vibe-coding workflows",
+    "last_updated": "2026-03",
+    "usage_note": "Feed this JSON as context to Cursor AI / any LLM to replicate consistent UI across all screens. Always reference token names, not raw values, in component code."
+  },
+
+  "design_philosophy": {
+    "style": "Fashion-editorial dark-mode native",
+    "mood": "Aspirational, immersive, premium-minimal",
+    "hierarchy": "Content (imagery/video) is the hero. UI chrome is invisible until needed.",
+    "interaction_model": "Gesture-first. Swipe, tap, hold — no visible buttons unless actively needed.",
+    "layout_paradigm": "Full-bleed vertical scroll. Feed = canvas. Controls float above content.",
+    "density": "Low density. Generous whitespace. One primary action per screen.",
+    "animation_philosophy": "Physics-based, spring curves. Nothing snaps — everything flows.",
+    "brand_adjectives": ["sleek", "confident", "editorial", "playful-minimal", "AI-native"]
+  },
+
+  "color": {
+    "_note": "Dark canvas is the base. All colors are layered on top via opacity and blur.",
+    "primitives": {
+      "ink_100": "#0A0A0B",
+      "ink_90":  "#111114",
+      "ink_80":  "#18181C",
+      "ink_70":  "#222228",
+      "ink_60":  "#2C2C34",
+      "ink_50":  "#3A3A44",
+      "white":   "#FFFFFF",
+      "white_90":"#E8E8EC",
+      "white_70":"#AFAFB8"
+    },
+    "semantic": {
+      "background_base":      "ink_100",
+      "background_surface":   "ink_80",
+      "background_elevated":  "ink_70",
+      "background_overlay":   "rgba(10,10,11,0.72)",
+      "background_glass":     "rgba(255,255,255,0.06)",
+      "background_glass_border": "rgba(255,255,255,0.10)",
+      "text_primary":         "white",
+      "text_secondary":       "white_70",
+      "text_on_media":        "white",
+      "border_subtle":        "rgba(255,255,255,0.08)",
+      "border_active":        "rgba(255,255,255,0.24)"
+    },
+    "accent": {
+      "_note": "Single accent — used sparingly, only for primary CTA and active states.",
+      "accent_primary":       "#E8D5FF",
+      "accent_primary_bg":    "#7C3AED",
+      "accent_primary_glow":  "rgba(124,58,237,0.35)",
+      "accent_secondary":     "#F9A8D4",
+      "accent_success":       "#86EFAC",
+      "accent_warning":       "#FDE68A",
+      "accent_error":         "#FCA5A5"
+    },
+    "gradient": {
+      "feed_vignette_bottom": "linear-gradient(to top, rgba(10,10,11,0.95) 0%, rgba(10,10,11,0.60) 35%, transparent 65%)",
+      "feed_vignette_top":    "linear-gradient(to bottom, rgba(10,10,11,0.70) 0%, transparent 40%)",
+      "card_shine":           "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)",
+      "cta_button":           "linear-gradient(135deg, #7C3AED 0%, #A855F7 100%)",
+      "surface_glow":         "radial-gradient(ellipse at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%)"
+    }
+  },
+
+  "typography": {
+    "_font_stack": {
+      "primary": "'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      "display": "'Google Sans Display', 'Inter Display', sans-serif",
+      "mono":    "'Google Sans Mono', 'JetBrains Mono', monospace"
+    },
+    "scale": {
+      "display_xl": { "size": "40px", "line_height": "1.10", "weight": "700", "tracking": "-0.03em", "usage": "Hero splash screen, onboarding headline" },
+      "display_lg": { "size": "32px", "line_height": "1.15", "weight": "700", "tracking": "-0.025em", "usage": "Section title, try-on result headline" },
+      "heading_lg":  { "size": "24px", "line_height": "1.25", "weight": "600", "tracking": "-0.02em", "usage": "Product name, card title" },
+      "heading_md":  { "size": "20px", "line_height": "1.30", "weight": "600", "tracking": "-0.015em", "usage": "Drawer title, seller name" },
+      "heading_sm":  { "size": "17px", "line_height": "1.35", "weight": "600", "tracking": "-0.01em", "usage": "Section subheading, tab label active" },
+      "body_lg":     { "size": "16px", "line_height": "1.55", "weight": "400", "tracking": "0em",     "usage": "Product description, feed caption" },
+      "body_md":     { "size": "14px", "line_height": "1.55", "weight": "400", "tracking": "0em",     "usage": "Secondary info, price, meta" },
+      "body_sm":     { "size": "12px", "line_height": "1.50", "weight": "400", "tracking": "0.01em",  "usage": "Timestamp, disclaimer, helper text" },
+      "label_lg":    { "size": "14px", "line_height": "1.0",  "weight": "600", "tracking": "0.02em",  "usage": "CTA button text, chip label" },
+      "label_sm":    { "size": "11px", "line_height": "1.0",  "weight": "600", "tracking": "0.04em", "text_transform": "uppercase", "usage": "Badge, tag, category pill" }
+    }
+  },
+
+  "spacing": {
+    "_unit": "4px base grid",
+    "tokens": {
+      "space_1":  "4px",
+      "space_2":  "8px",
+      "space_3":  "12px",
+      "space_4":  "16px",
+      "space_5":  "20px",
+      "space_6":  "24px",
+      "space_8":  "32px",
+      "space_10": "40px",
+      "space_12": "48px",
+      "space_16": "64px",
+      "space_20": "80px"
+    },
+    "layout": {
+      "page_padding_x":      "space_4 (16px)",
+      "page_padding_x_lg":   "space_6 (24px)",
+      "safe_area_bottom":    "34px (iOS home bar) + space_4",
+      "feed_item_gap":       "0px (seamless full-bleed)",
+      "card_padding":        "space_4 (16px)",
+      "drawer_padding":      "space_6 (24px)",
+      "section_gap":         "space_8 (32px)"
+    }
+  },
+
+  "border_radius": {
+    "_note": "Consistently rounded. Nothing is sharp-cornered except the feed itself (full bleed).",
+    "radius_sm":   "8px",
+    "radius_md":   "12px",
+    "radius_lg":   "16px",
+    "radius_xl":   "24px",
+    "radius_2xl":  "32px",
+    "radius_pill": "9999px",
+    "radius_card": "16px",
+    "radius_sheet": "24px (top corners of bottom sheets)",
+    "radius_chip":  "9999px",
+    "radius_avatar":"9999px",
+    "radius_button":"9999px (fully rounded CTAs)"
+  },
+
+  "elevation_and_blur": {
+    "_note": "Doppl uses backdrop-blur over dark overlays instead of traditional drop shadows.",
+    "levels": {
+      "flat":     { "shadow": "none", "blur": "0px" },
+      "raised":   { "shadow": "0 2px 12px rgba(0,0,0,0.40)", "blur": "0px" },
+      "floating": { "shadow": "0 8px 32px rgba(0,0,0,0.60)", "blur": "0px" },
+      "glass":    { "shadow": "0 4px 24px rgba(0,0,0,0.50)", "blur": "20px", "bg": "background_glass", "border": "border_subtle" },
+      "sheet":    { "shadow": "0 -8px 48px rgba(0,0,0,0.80)", "blur": "0px" },
+      "overlay":  { "shadow": "none", "blur": "40px", "bg": "background_overlay" }
+    }
+  },
+
+  "animation": {
+    "_note": "All transitions use spring physics. Avoid linear or ease-in-out for interactive elements.",
+    "duration": {
+      "instant":    "80ms",
+      "fast":       "150ms",
+      "normal":     "250ms",
+      "slow":       "400ms",
+      "deliberate": "600ms"
+    },
+    "easing": {
+      "spring_snap":    "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "spring_smooth":  "cubic-bezier(0.25, 1.0, 0.5, 1)",
+      "ease_out_expo":  "cubic-bezier(0.16, 1, 0.3, 1)",
+      "ease_in_back":   "cubic-bezier(0.36, 0, 0.66, -0.56)"
+    },
+    "patterns": {
+      "bottom_sheet_enter":  { "from": "translateY(100%)", "to": "translateY(0)", "duration": "slow", "easing": "spring_smooth" },
+      "bottom_sheet_exit":   { "from": "translateY(0)", "to": "translateY(100%)", "duration": "normal", "easing": "ease_out_expo" },
+      "feed_item_snap":      { "behavior": "scroll-snap-type: y mandatory", "snap_align": "scroll-snap-align: start", "overscroll": "overscroll-behavior: contain" },
+      "product_tag_pulse":   { "animation": "scale(1) → scale(1.12) → scale(1)", "duration": "1200ms", "repeat": "infinite", "easing": "ease-in-out" },
+      "fade_up_enter":       { "from": "opacity:0, translateY(16px)", "to": "opacity:1, translateY(0)", "duration": "normal", "easing": "ease_out_expo" },
+      "card_tap_feedback":   { "from": "scale(1)", "to": "scale(0.96)", "duration": "instant", "easing": "spring_snap" },
+      "tryon_reveal":        { "transition": "clip-path wipe left-to-right", "duration": "deliberate", "easing": "ease_out_expo" }
+    }
+  },
+
+  "components": {
+    "feed": {
+      "description": "Full-screen vertical scroll feed. The core UI surface.",
+      "layout": {
+        "width": "100vw",
+        "height": "100dvh",
+        "overflow": "hidden scroll",
+        "scroll_snap": "y mandatory",
+        "scroll_behavior": "smooth"
+      },
+      "feed_item": {
+        "width": "100%",
+        "height": "100dvh",
+        "scroll_snap_align": "start",
+        "position": "relative",
+        "overflow": "hidden",
+        "media_layer": {
+          "position": "absolute inset-0",
+          "object_fit": "cover",
+          "z_index": "0",
+          "autoplay": true,
+          "muted": true,
+          "loop": true,
+          "playsInline": true
+        },
+        "vignette_bottom": {
+          "position": "absolute bottom-0 left-0 right-0",
+          "height": "65%",
+          "background": "gradient.feed_vignette_bottom",
+          "z_index": "1",
+          "pointer_events": "none"
+        },
+        "vignette_top": {
+          "position": "absolute top-0 left-0 right-0",
+          "height": "30%",
+          "background": "gradient.feed_vignette_top",
+          "z_index": "1",
+          "pointer_events": "none"
+        },
+        "info_overlay": {
+          "position": "absolute bottom-0 left-0 right-0",
+          "padding": "space_6 space_4",
+          "padding_bottom": "safe_area_bottom + space_16",
+          "z_index": "2",
+          "display": "flex",
+          "flex_direction": "column",
+          "gap": "space_2"
+        }
+      }
+    },
+
+    "product_tag": {
+      "description": "Floating interactive dot that appears over feed video at product location.",
+      "structure": {
+        "outer_ring": {
+          "size": "40px",
+          "border_radius": "radius_pill",
+          "background": "rgba(255,255,255,0.15)",
+          "backdrop_filter": "blur(8px)",
+          "border": "1.5px solid rgba(255,255,255,0.30)",
+          "animation": "pulse 1200ms infinite ease-in-out",
+          "display": "flex align-center justify-center"
+        },
+        "inner_dot": {
+          "size": "12px",
+          "border_radius": "radius_pill",
+          "background": "white"
+        },
+        "label_chip": {
+          "position": "absolute top-full mt-2",
+          "background": "rgba(0,0,0,0.75)",
+          "backdrop_filter": "blur(12px)",
+          "border_radius": "radius_chip",
+          "padding": "space_1 space_3",
+          "typography": "label_lg",
+          "color": "text_primary",
+          "white_space": "nowrap"
+        }
+      }
+    },
+
+    "product_drawer": {
+      "description": "Bottom sheet that slides up when a product tag is tapped. Does NOT navigate away from feed.",
+      "container": {
+        "position": "fixed bottom-0 left-0 right-0",
+        "background": "background_surface",
+        "border_radius": "radius_sheet radius_sheet 0 0",
+        "border_top": "1px solid border_subtle",
+        "padding": "space_6",
+        "max_height": "72dvh",
+        "overflow_y": "auto",
+        "z_index": "100",
+        "box_shadow": "elevation_and_blur.sheet.shadow",
+        "animation": "bottom_sheet_enter"
+      },
+      "drag_handle": {
+        "width": "36px",
+        "height": "4px",
+        "border_radius": "radius_pill",
+        "background": "rgba(255,255,255,0.20)",
+        "margin": "0 auto space_4"
+      },
+      "product_image": {
+        "width": "80px",
+        "height": "80px",
+        "border_radius": "radius_md",
+        "object_fit": "cover",
+        "flex_shrink": "0"
+      },
+      "price": {
+        "typography": "heading_md",
+        "color": "text_primary",
+        "font_weight": "700"
+      },
+      "seller_row": {
+        "display": "flex align-center gap-2",
+        "avatar_size": "24px",
+        "avatar_radius": "radius_pill",
+        "typography": "body_sm",
+        "color": "text_secondary"
+      },
+      "cta_row": {
+        "display": "flex gap-3",
+        "margin_top": "space_5",
+        "primary_cta": "button.primary",
+        "secondary_cta": "button.ghost"
+      }
+    },
+
+    "button": {
+      "primary": {
+        "height": "52px",
+        "padding": "0 space_6",
+        "border_radius": "radius_button",
+        "background": "gradient.cta_button",
+        "color": "white",
+        "typography": "label_lg",
+        "box_shadow": "0 4px 16px accent_primary_glow",
+        "transition": "transform fast spring_snap, opacity fast",
+        "hover": { "transform": "scale(1.02)" },
+        "active": { "transform": "scale(0.96)", "opacity": "0.90" },
+        "disabled": { "opacity": "0.40", "cursor": "not-allowed" },
+        "full_width_variant": "width: 100%"
+      },
+      "secondary": {
+        "height": "52px",
+        "padding": "0 space_6",
+        "border_radius": "radius_button",
+        "background": "rgba(255,255,255,0.10)",
+        "border": "1px solid border_active",
+        "color": "white",
+        "typography": "label_lg",
+        "backdrop_filter": "blur(8px)"
+      },
+      "ghost": {
+        "height": "44px",
+        "padding": "0 space_4",
+        "border_radius": "radius_button",
+        "background": "transparent",
+        "color": "white_70",
+        "typography": "label_lg",
+        "hover": { "background": "rgba(255,255,255,0.08)" }
+      },
+      "icon_button": {
+        "size": "44px",
+        "border_radius": "radius_pill",
+        "background": "background_glass",
+        "border": "1px solid border_subtle",
+        "backdrop_filter": "blur(12px)",
+        "display": "flex align-center justify-center",
+        "icon_size": "20px",
+        "color": "white"
+      },
+      "chip": {
+        "height": "32px",
+        "padding": "0 space_3",
+        "border_radius": "radius_chip",
+        "background": "background_glass",
+        "border": "1px solid border_subtle",
+        "backdrop_filter": "blur(8px)",
+        "typography": "label_sm",
+        "color": "white_70",
+        "active_state": {
+          "background": "accent_primary_bg",
+          "border": "1px solid transparent",
+          "color": "white"
+        }
+      }
+    },
+
+    "navigation_bar": {
+      "description": "Floating bottom navigation. Glass morphism. NOT a full-width solid bar.",
+      "container": {
+        "position": "fixed",
+        "bottom": "safe_area_bottom + 12px",
+        "left": "50%",
+        "transform": "translateX(-50%)",
+        "width": "fit-content",
+        "min_width": "240px",
+        "height": "60px",
+        "background": "rgba(18,18,20,0.85)",
+        "backdrop_filter": "blur(24px) saturate(180%)",
+        "border_radius": "radius_pill",
+        "border": "1px solid border_subtle",
+        "box_shadow": "0 8px 32px rgba(0,0,0,0.60)",
+        "padding": "0 space_4",
+        "display": "flex align-center gap-2",
+        "z_index": "200"
+      },
+      "nav_item": {
+        "width": "56px",
+        "height": "44px",
+        "border_radius": "radius_pill",
+        "display": "flex flex-col align-center justify-center gap-1",
+        "icon_size": "22px",
+        "label_typography": "label_sm",
+        "inactive_color": "white_70",
+        "active_color": "white",
+        "active_background": "rgba(255,255,255,0.12)",
+        "transition": "background fast spring_snap, color fast"
+      }
+    },
+
+    "top_bar": {
+      "description": "Transparent top bar floating over feed content.",
+      "container": {
+        "position": "absolute top-0 left-0 right-0",
+        "height": "56px",
+        "padding": "0 space_4",
+        "display": "flex align-center justify-between",
+        "background": "transparent",
+        "z_index": "10"
+      },
+      "logo": {
+        "typography": "heading_lg",
+        "color": "white",
+        "font_weight": "700",
+        "letter_spacing": "-0.03em"
+      },
+      "action_row": {
+        "display": "flex gap-2",
+        "children": "icon_button"
+      }
+    },
+
+    "category_filter_bar": {
+      "description": "Horizontally scrollable chip row below top bar.",
+      "container": {
+        "display": "flex",
+        "overflow_x": "auto",
+        "scrollbar_width": "none",
+        "padding": "0 space_4",
+        "gap": "space_2"
+      },
+      "child": "button.chip"
+    },
+
+    "try_on_module": {
+      "description": "Full-screen AI try-on experience. Launched as a modal over the feed.",
+      "overlay": {
+        "position": "fixed inset-0",
+        "background": "background_base",
+        "z_index": "300",
+        "animation": "fade_up_enter"
+      },
+      "photo_upload_zone": {
+        "border": "1.5px dashed border_active",
+        "border_radius": "radius_xl",
+        "background": "background_glass",
+        "min_height": "320px",
+        "display": "flex flex-col align-center justify-center gap-4",
+        "icon_size": "40px",
+        "icon_color": "white_70",
+        "label_typography": "body_md",
+        "label_color": "text_secondary"
+      },
+      "result_reveal": {
+        "animation": "tryon_reveal",
+        "before_after_toggle": {
+          "position": "absolute inset-x-0 bottom-0 top-auto",
+          "height": "48px",
+          "background": "background_glass",
+          "backdrop_filter": "blur(12px)",
+          "border_radius": "radius_lg",
+          "display": "flex align-center"
+        }
+      },
+      "confidence_warning": {
+        "position": "absolute top-4 left-4 right-4",
+        "background": "rgba(253,230,138,0.15)",
+        "border": "1px solid rgba(253,230,138,0.40)",
+        "border_radius": "radius_md",
+        "padding": "space_3 space_4",
+        "typography": "body_sm",
+        "color": "accent_warning",
+        "display": "flex align-center gap-2"
+      }
+    },
+
+    "product_card": {
+      "description": "Used in search results, wishlists, seller catalog views.",
+      "container": {
+        "background": "background_elevated",
+        "border_radius": "radius_card",
+        "overflow": "hidden",
+        "border": "1px solid border_subtle",
+        "transition": "transform fast spring_snap"
+      },
+      "image": {
+        "aspect_ratio": "3/4",
+        "width": "100%",
+        "object_fit": "cover"
+      },
+      "info_section": {
+        "padding": "space_3",
+        "display": "flex flex-col gap-1"
+      },
+      "product_name": {
+        "typography": "body_md",
+        "color": "text_primary",
+        "font_weight": "600",
+        "line_clamp": "2"
+      },
+      "price": {
+        "typography": "body_md",
+        "color": "text_primary",
+        "font_weight": "700"
+      },
+      "seller_name": {
+        "typography": "body_sm",
+        "color": "text_secondary"
+      },
+      "card_grid": {
+        "display": "grid",
+        "grid_cols": "repeat(2, 1fr)",
+        "gap": "space_3",
+        "padding": "space_4"
+      }
+    },
+
+    "seller_avatar_row": {
+      "description": "Horizontal seller info row shown in feed overlay.",
+      "container": {
+        "display": "flex align-center gap-3"
+      },
+      "avatar": {
+        "size": "36px",
+        "border_radius": "radius_pill",
+        "border": "1.5px solid rgba(255,255,255,0.25)"
+      },
+      "name_block": {
+        "display": "flex flex-col",
+        "name_typography": "body_md",
+        "name_weight": "600",
+        "name_color": "text_primary",
+        "subtitle_typography": "body_sm",
+        "subtitle_color": "text_secondary"
+      },
+      "follow_button": {
+        "height": "28px",
+        "padding": "0 space_3",
+        "border_radius": "radius_chip",
+        "background": "rgba(255,255,255,0.12)",
+        "border": "1px solid border_active",
+        "typography": "label_sm",
+        "color": "white",
+        "followed_state": {
+          "background": "transparent",
+          "border": "1px solid border_subtle",
+          "color": "text_secondary"
+        }
+      }
+    },
+
+    "onboarding_quiz": {
+      "description": "3-step swipeable onboarding flow. One choice per screen.",
+      "screen": {
+        "background": "background_base",
+        "min_height": "100dvh",
+        "display": "flex flex-col",
+        "padding": "space_6"
+      },
+      "progress_indicator": {
+        "display": "flex gap-2",
+        "dot_size": "6px",
+        "dot_radius": "radius_pill",
+        "inactive_color": "ink_50",
+        "active_color": "white",
+        "active_width": "20px"
+      },
+      "question": {
+        "typography": "display_lg",
+        "color": "text_primary",
+        "margin_top": "space_12"
+      },
+      "option_grid": {
+        "display": "grid",
+        "grid_cols": "repeat(2, 1fr)",
+        "gap": "space_3",
+        "margin_top": "space_8"
+      },
+      "option_card": {
+        "aspect_ratio": "3/4",
+        "border_radius": "radius_xl",
+        "overflow": "hidden",
+        "border": "2px solid transparent",
+        "background": "background_elevated",
+        "selected_state": {
+          "border": "2px solid white",
+          "box_shadow": "0 0 0 4px rgba(255,255,255,0.15)"
+        }
+      }
+    },
+
+    "reel_action_sidebar": {
+      "description": "Vertical action buttons on right side of feed (like/save/share). Doppl-style float over content.",
+      "container": {
+        "position": "absolute right-4 bottom-32",
+        "display": "flex flex-col",
+        "gap": "space_5",
+        "align_items": "center",
+        "z_index": "3"
+      },
+      "action_item": {
+        "display": "flex flex-col align-center gap-1",
+        "button": "button.icon_button",
+        "count_typography": "body_sm",
+        "count_color": "text_primary",
+        "count_weight": "600"
+      }
+    },
+
+    "toast_notification": {
+      "position": "fixed top-4 left-4 right-4",
+      "background": "rgba(34,34,40,0.90)",
+      "backdrop_filter": "blur(20px)",
+      "border": "1px solid border_subtle",
+      "border_radius": "radius_lg",
+      "padding": "space_3 space_4",
+      "display": "flex align-center gap-3",
+      "z_index": "500",
+      "animation": "fade_up_enter",
+      "exit_animation": { "to": "opacity:0, translateY(-8px)", "duration": "fast" },
+      "icon_size": "18px",
+      "typography": "body_md",
+      "color": "text_primary",
+      "auto_dismiss": "3000ms"
+    },
+
+    "badge": {
+      "verified_seller": {
+        "background": "accent_primary_bg",
+        "border_radius": "radius_pill",
+        "padding": "2px space_2",
+        "typography": "label_sm",
+        "color": "white",
+        "icon": "checkmark 10px"
+      },
+      "new_arrival": {
+        "background": "rgba(134,239,172,0.15)",
+        "border": "1px solid rgba(134,239,172,0.40)",
+        "border_radius": "radius_pill",
+        "padding": "2px space_2",
+        "typography": "label_sm",
+        "color": "accent_success"
+      },
+      "ai_generated": {
+        "background": "rgba(232,213,255,0.12)",
+        "border": "1px solid rgba(232,213,255,0.25)",
+        "border_radius": "radius_pill",
+        "padding": "2px space_2",
+        "typography": "label_sm",
+        "color": "accent_primary",
+        "icon": "sparkle 10px"
+      }
+    }
+  },
+
+  "screen_templates": {
+    "feed_screen": {
+      "layers_from_bottom_to_top": [
+        "1. video/image media (position: absolute, full bleed, z-index: 0)",
+        "2. bottom vignette gradient (z-index: 1, pointer-events: none)",
+        "3. top vignette gradient (z-index: 1, pointer-events: none)",
+        "4. product_tags floating over content (z-index: 2)",
+        "5. info_overlay bottom-left: seller_avatar_row + product title + price (z-index: 3)",
+        "6. reel_action_sidebar bottom-right: like/save/share (z-index: 3)",
+        "7. category_filter_bar + top_bar (z-index: 10, position: absolute top-0)",
+        "8. navigation_bar (z-index: 200, position: fixed, floating pill)"
+      ]
+    },
+    "product_drawer_state": {
+      "description": "When product tag is tapped, feed continues playing underneath",
+      "layers": [
+        "1–7. (same feed layers, still active, video still playing)",
+        "8. scrim overlay: rgba(0,0,0,0.40) animated in (z-index: 50)",
+        "9. product_drawer slides up from bottom (z-index: 100)"
+      ]
+    },
+    "try_on_screen": {
+      "layers": [
+        "1. background_base full screen (z-index: 300)",
+        "2. top bar with back button + title",
+        "3. main area: photo_upload_zone OR result image",
+        "4. confidence_warning (conditional, z-index: 1 within module)",
+        "5. before_after_toggle (shown after result loads)",
+        "6. bottom action row: try another / add to cart"
+      ]
+    }
+  },
+
+  "iconography": {
+    "style": "Line icons, 1.5px stroke weight, rounded line-caps and joins",
+    "size_system": {
+      "xs": "16px",
+      "sm": "20px",
+      "md": "24px",
+      "lg": "28px",
+      "xl": "32px"
+    },
+    "recommended_library": "lucide-react (matches stroke style perfectly)",
+    "key_icons": {
+      "home_feed":     "lucide: Home",
+      "search":        "lucide: Search",
+      "try_on":        "lucide: Shirt",
+      "cart":          "lucide: ShoppingBag",
+      "profile":       "lucide: User",
+      "like":          "lucide: Heart",
+      "save":          "lucide: Bookmark",
+      "share":         "lucide: Share2",
+      "follow":        "lucide: UserPlus",
+      "verified":      "lucide: BadgeCheck",
+      "ai_sparkle":    "lucide: Sparkles",
+      "camera":        "lucide: Camera",
+      "upload":        "lucide: Upload",
+      "close":         "lucide: X",
+      "back":          "lucide: ChevronLeft",
+      "product_tag":   "lucide: Tag",
+      "warning":       "lucide: AlertTriangle"
+    }
+  },
+
+  "imagery": {
+    "feed_media": {
+      "aspect_ratio": "9:16 (portrait video primary)",
+      "object_position": "center top (prioritise face/outfit head)",
+      "fallback_color": "ink_80"
+    },
+    "product_images": {
+      "preferred_aspect": "3:4 (portrait)",
+      "background": "neutral light gray (#F5F5F5) or transparent",
+      "min_resolution": "800x1067px",
+      "style": "clean editorial, consistent lighting, no busy backgrounds"
+    },
+    "seller_avatars": {
+      "aspect": "1:1",
+      "min_size": "200x200px",
+      "treatment": "circle crop"
+    }
+  },
+
+  "cursor_ai_implementation_notes": {
+    "tailwind_class_mapping": {
+      "background_base":    "bg-[#0A0A0B]",
+      "background_surface": "bg-[#18181C]",
+      "background_elevated":"bg-[#222228]",
+      "background_glass":   "bg-white/[0.06] backdrop-blur-xl",
+      "text_primary":       "text-white",
+      "text_secondary":     "text-white/70",
+      "border_subtle":      "border-white/[0.08]",
+      "accent_primary_bg":  "bg-violet-600",
+      "accent_primary_glow":"shadow-[0_4px_16px_rgba(124,58,237,0.35)]",
+      "radius_card":        "rounded-2xl",
+      "radius_pill":        "rounded-full",
+      "radius_sheet":       "rounded-t-3xl"
+    },
+    "prompt_patterns": {
+      "feed_item": "Full-screen 100dvh snap-scrollable item. Video/image fills entire area as background. Gradient vignettes top and bottom. UI overlays float with z-index. No visible border or gap between items.",
+      "glassmorphism": "Use bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] for all glass surfaces. Avoid opaque backgrounds on floating elements.",
+      "bottom_sheet": "position fixed bottom-0 left-0 right-0, bg-[#18181C], rounded-t-3xl, border-t border-white/[0.08], shadow-[0_-8px_48px_rgba(0,0,0,0.80)], animate slide-in-from-bottom",
+      "primary_cta": "h-[52px] w-full rounded-full bg-gradient-to-br from-violet-600 to-purple-500 text-white font-semibold shadow-[0_4px_16px_rgba(124,58,237,0.35)] active:scale-95 transition-transform",
+      "nav_bar": "fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 px-4 h-[60px] bg-[#121214]/85 backdrop-blur-2xl border border-white/[0.08] rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.60)]",
+      "product_tag": "absolute w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center cursor-pointer animate-pulse",
+      "chip_active": "rounded-full px-3 h-8 bg-violet-600 text-white text-xs font-semibold uppercase tracking-wide",
+      "chip_inactive": "rounded-full px-3 h-8 bg-white/[0.06] backdrop-blur-md border border-white/[0.08] text-white/70 text-xs font-semibold uppercase tracking-wide"
+    },
+    "anti_patterns": [
+      "NEVER use white/light backgrounds — this is a dark-native design system",
+      "NEVER use sharp corners (border-radius: 0) on interactive elements",
+      "NEVER use box-shadow without blur on floating elements — use backdrop-blur instead",
+      "NEVER use solid opaque backgrounds on nav bars or drawers — always glass morphism",
+      "NEVER stack multiple full-width solid-color sections — use dark canvas with layered depth",
+      "NEVER use more than one accent color per screen",
+      "NEVER use standard ease-in-out for interactive micro-animations — use spring curves",
+      "NEVER show bottom nav as a full-width bar — it must be a floating pill",
+      "NEVER navigate away from feed when tapping a product — always use bottom sheet drawer"
+    ]
+  }
+}
