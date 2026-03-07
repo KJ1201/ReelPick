@@ -1,0 +1,12 @@
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+Failed to compile.
+
+src\app\layout.tsx
+`next/font` error:
+Unknown font `Geist`
+
+
+> Build failed because of webpack errors

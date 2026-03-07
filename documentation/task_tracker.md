@@ -4,47 +4,43 @@ This document tracks the execution phases of the ReelShop MVP built for the hack
 
 ## 📋 To Do
 
-### Phase 1: Project Setup & Foundation
-- [ ] Initialize Next.js 14 (App Router) with Tailwind CSS
-- [ ] Install and configure shadcn/ui components
-- [ ] Configure `tailwind.config.ts` mapping `design.json` tokens
-- [ ] Set up Supabase (Database, Auth, Storage) and apply migrations
-- [ ] Configure environment variables (`.env.local`)
-
-### Phase 2: Core Shopper Experience (Feed)
-- [ ] Implement vertical scrollable video feed (Snap scroll)
-- [ ] Create `VideoPlayer` component with auto-play/mute logic
-- [ ] Implement Product Tagging system (Pulsing overlays)
-- [ ] Create Feed API route with initial mock/seed data
-
-### Phase 3: AI Virtual Try-On & Product Details
-- [ ] Design Product Drawer/Modal UI using bottom sheets
-- [ ] Implement Virtual Try-On API (HuggingFace IDM-VTON proxy)
-- [ ] Build Photo Upload & Result UI (Before/After toggle and Confidence Warning)
-- [ ] Implement Wishlist/Add to Cart logic
-
-### Phase 4: Cart, Checkout & Payments
-- [ ] Build Cart Drawer/Page UI
-- [ ] Integrate Razorpay Checkout (Sandbox mode)
-- [ ] Implement Order success/failure pages
-
-### Phase 5: Seller Studio (AI Content Creation)
-- [ ] Design Seller Dashboard UI
-- [ ] Build AI Reel Generator leveraging Canvas Ken Burns effect
-- [ ] Integrate Gemini 2.0 Flash for AI Captions/Hashtags
-- [ ] Implement Reel publishing flow (upload to Supabase Storage)
-
 ### Phase 6: Personalization & Final Polish
 - [ ] Build Style Quiz for onboarding
-- [ ] Implement basic recommendation logic via Supabase `pgvector`
 - [ ] Add loading skeletons, error boundaries, and empty states
 - [ ] Final UI/UX Refinement (Animations, Glassmorphism checks against `design.json`)
 
 ## ⏳ In Progress
-- (No active execution tasks currently in progress)
+### Phase 5: Seller Studio (Content Management)
+- [x] Design Seller Dashboard UI
+- [x] Separate Product Listing from Reel Creation flow (DONE)
+- [x] Implement Reel publishing flow (upload to Supabase Storage - DONE)
+- [x] Multi-table database insertion (Products + Reels - DONE)
+- [x] Seeded professional fashion content for Demo (DONE)
+- [ ] Implement video thumbnail generation
 
 ## ✅ Done
+### Phase 4: Cart, Checkout & Payments
+- [x] Build Cart Drawer/Page UI
+- [x] Integrate Razorpay Checkout (Sandbox mode)
+- [x] Implement Order success/failure pages
+
+### Phase 3: Product Details & Core DB
+- [x] Design High-Fidelity Amazon-style Product Page (Standalone)
+- [x] Migrate Feed API from Static to Supabase Database
+- [x] Implement dynamic Product Page fetching from Supabase
+- [x] Implement Buy Now / Add to Cart logic
+- [x] Multi-page architecture implementation (Cart, Profile, Store, Checkout pages)
+- [x] Integrated Customer Reviews and Recommendations sections (DONE)
+
+### Phase 2: Core Shopper Experience (Feed)
+- [x] Implement vertical scrollable video feed (Snap scroll)
+- [x] Create `VideoPlayer` component with auto-play/mute logic
+- [x] Implement Product Tagging system (Pulsing overlays)
+- [x] Create Feed API route with real Supabase integration
+
+### Phase 1: Project Setup & Foundation
 - [x] Initial Requirements Gathering (PRD)
 - [x] UI/UX Design System Specification (`design.json`)
 - [x] Technical Scaffolding Architecture setup (`technical_overview.md`)
-- [x] Task mapping and backlog creation
+- [x] Set up Supabase Storage Buckets and Policies
+- [x] Initial Database Schema (Profiles, Products, Reels, Tags)
