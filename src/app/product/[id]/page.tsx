@@ -2,14 +2,22 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { ShoppingBag, ArrowLeft, Loader2, ArrowRight, Star, CheckCircle, ShieldCheck, Truck, RefreshCw, ChevronRight, MessageSquare, ThumbsUp, Heart } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Loader2, ArrowRight, Star, CheckCircle, ShieldCheck, Truck, RefreshCw, ChevronRight, MessageSquare, ThumbsUp, Heart, Sparkles, Info, CheckCircle2, Share2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Sidebar } from '@/components/common/Sidebar';
 import { MobileNav } from '@/components/common/MobileNav';
+import { ProductDetailsSkeleton } from '@/components/common/Skeleton';
+import { OrderSuccessModal } from '@/components/cart/OrderSuccessModal';
+import { MOCK_PRODUCTS } from '@/data/mockProducts';
+import { useToast } from '@/context/ToastContext';
+import { useCart } from '@/context/CartContext';
+
 
 export default function ProductDetailsPage() {
+    const { showToast } = useToast();
+    const { addToCart: cartAdd } = useCart();
     const params = useParams();
     const router = useRouter();
     const productId = params.id as string;
@@ -18,6 +26,7 @@ export default function ProductDetailsPage() {
     const [recommended, setRecommended] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedSize, setSelectedSize] = useState('M');
+    const [isOrderSuccessOpen, setIsOrderSuccessOpen] = useState(false);
 
     // Mock reviews
     const reviews = [
@@ -32,7 +41,7 @@ export default function ProductDetailsPage() {
         async function fetchData() {
             setIsLoading(true);
             try {
-                // 1. Fetch main product
+                // 1. Fetch main product from Supabase
                 const { data: pData, error: pError } = await supabase
                     .from('products')
                     .select(`
@@ -42,20 +51,49 @@ export default function ProductDetailsPage() {
                     .eq('id', productId)
                     .single();
 
-                if (pError) throw pError;
-                setProduct(pData);
+                if (pError || !pData) {
+                    // Fallback to MOCK_PRODUCTS if not found in DB
+                    console.log("[Product Page] Not in DB, searching in MOCK_PRODUCTS...");
+                    const mockP = MOCK_PRODUCTS.find(p => p.id === productId);
+                    if (mockP) {
+                        // Adapt mock structure slightly to match DB fields if needed
+                        setProduct({
+                            ...mockP,
+                            image_url: mockP.image, // DB uses image_url, mock uses image
+                            seller: { username: mockP.seller, avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' }
+                        });
+                    }
+                } else {
+                    setProduct(pData);
+                }
 
-                // 2. Fetch recommended (from same category)
+                // 2. Fetch recommended
                 const { data: rData } = await supabase
                     .from('products')
                     .select('*')
                     .neq('id', productId)
                     .limit(4);
 
-                if (rData) setRecommended(rData);
+                if (rData && rData.length > 0) {
+                    setRecommended(rData);
+                } else {
+                    // Filter out current product from mock recommended
+                    setRecommended(MOCK_PRODUCTS.filter(p => p.id !== productId).slice(0, 4).map(p => ({
+                        ...p,
+                        image_url: p.image
+                    })));
+                }
 
             } catch (err) {
-                console.error("[Product Page] Load error:", err);
+                console.error("[Product Page] Load error, using mock fallback:", err);
+                const mockP = MOCK_PRODUCTS.find(p => p.id === productId);
+                if (mockP) {
+                    setProduct({
+                        ...mockP,
+                        image_url: mockP.image,
+                        seller: { username: mockP.seller, avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' }
+                    });
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -64,13 +102,45 @@ export default function ProductDetailsPage() {
         fetchData();
     }, [productId]);
 
-    const addToCart = () => {
-        // Mock add to cart logic (could use context/provider)
-        window.alert(`${product.name} (Size ${selectedSize}) added to bag!`);
+    const addToCart = async () => {
+        try {
+            await cartAdd(productId, selectedSize);
+            showToast(`${product.name} (Size ${selectedSize}) added to bag!`, 'premium');
+        } catch (err) {
+            console.error("Cart error:", err);
+            showToast("Failed to add to bag. Please try again.", 'error');
+        }
     };
 
     const buyNow = () => {
-        router.push('/checkout');
+        setIsOrderSuccessOpen(true);
+    };
+
+    const handleShare = async () => {
+        if (!product) return;
+        const shareUrl = window.location.href;
+        const shareData = {
+            title: `${product.name} | ReelPick`,
+            text: `Check out this ${product.name} on ReelPick!`,
+            url: shareUrl,
+        };
+
+        try {
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast('Link copied to clipboard!', 'info');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast('Link copied to clipboard!', 'info');
+            } catch (err) {
+                console.error('Final share fallback failed:', err);
+            }
+        }
     };
 
     return (
@@ -90,10 +160,7 @@ export default function ProductDetailsPage() {
                 </header>
 
                 {isLoading || !product ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center gap-4">
-                        <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]" />
-                        <p className="text-white/40 font-bold uppercase tracking-widest text-[10px]">Synchronizing Production Data...</p>
-                    </div>
+                    <ProductDetailsSkeleton />
                 ) : (
                     <div className="max-w-7xl mx-auto w-full p-6 md:p-12 animate-fade-in">
 
@@ -135,12 +202,12 @@ export default function ProductDetailsPage() {
                             {/* Right: Detailed Info */}
                             <div className="flex flex-col pt-4">
                                 <div className="flex items-center gap-3 mb-6 text-[11px] font-black uppercase tracking-[0.3em]">
-                                    <span className="text-primary italic">Official Drop</span>
+                                    <span className="text-primary">Official Drop</span>
                                     <span className="text-white/20">•</span>
                                     <span className="text-white/40">{product.category}</span>
                                 </div>
 
-                                <h1 className="text-white text-5xl md:text-7xl font-display font-black leading-[1] mb-6 tracking-tighter italic">
+                                <h1 className="text-white text-5xl md:text-7xl font-sans font-black leading-[1] mb-6 tracking-tighter">
                                     {product.name}
                                 </h1>
 
@@ -180,20 +247,33 @@ export default function ProductDetailsPage() {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="grid sm:grid-cols-2 gap-4 pt-4">
+                                    <div className="grid sm:grid-cols-4 gap-4 pt-4">
                                         <button
                                             onClick={addToCart}
                                             className="h-20 rounded-[24px] border border-white/10 bg-white/5 text-white font-black text-xl hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                                         >
                                             <ShoppingBag className="w-6 h-6" />
-                                            Add to Bag
+                                            Bag
+                                        </button>
+                                        <button
+                                            className="h-20 rounded-[24px] border border-white/10 bg-white/5 text-white/40 font-black text-xl hover:bg-white/10 hover:text-white transition-all flex flex-col items-center justify-center gap-1 active:scale-[0.98] group"
+                                        >
+                                            <Heart className="w-6 h-6 group-hover:fill-red-500 group-hover:text-red-500 transition-all" />
+                                            <span className="text-[10px] uppercase tracking-widest font-bold">Wishlist</span>
+                                        </button>
+                                        <button
+                                            onClick={handleShare}
+                                            className="h-20 rounded-[24px] border border-white/10 bg-white/5 text-white/40 font-black text-xl hover:bg-white/10 hover:text-white transition-all flex flex-col items-center justify-center gap-1 active:scale-[0.98]"
+                                        >
+                                            <Share2 className="w-6 h-6" />
+                                            <span className="text-[10px] uppercase tracking-widest font-bold">Share</span>
                                         </button>
                                         <button
                                             onClick={buyNow}
-                                            className="h-20 rounded-[24px] bg-white text-black font-black text-xl shadow-[0_12px_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+                                            className="h-20 rounded-[24px] bg-white text-black font-black text-xl shadow-[0_12px_40px_rgba(255,255,255,0.2)] hover:scale-105 transition-all flex items-center justify-center gap-x-2 active:scale-[0.98]"
                                         >
-                                            Buy It Now
-                                            <ChevronRight className="w-6 h-6" />
+                                            Checkout
+                                            <ChevronRight className="w-5 h-5" />
                                         </button>
                                     </div>
 
@@ -223,7 +303,7 @@ export default function ProductDetailsPage() {
                         {/* --- MIDDLE SECTION: PRODUCT STORY & SPECS --- */}
                         <div className="grid md:grid-cols-2 gap-20 mb-32 border-t border-white/10 pt-20">
                             <div className="space-y-8">
-                                <h3 className="text-3xl font-display font-black tracking-tight italic">The Concept Portfolio</h3>
+                                <h3 className="text-3xl font-sans font-black tracking-tight">The Concept Portfolio</h3>
                                 <p className="text-white/60 text-lg leading-relaxed font-medium">
                                     {product.description || "A masterclass in contemporary silhouettes. This piece explores the intersection of high-street aesthetics and artisanal tailoring. Using sustainably sourced materials, each unit undergoes a 12-point quality protocol before reaching your doorstep."}
                                 </p>
@@ -276,7 +356,7 @@ export default function ProductDetailsPage() {
                                         </div>
                                         <div>
                                             <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Sold By</p>
-                                            <p className="text-lg font-black italic">{product.seller?.username || 'Urban Threads'}</p>
+                                            <p className="text-lg font-black">{product.seller?.username || 'Urban Threads'}</p>
                                         </div>
                                         <button className="ml-auto text-primary text-xs font-bold uppercase tracking-widest hover:underline">Profile</button>
                                     </div>
@@ -288,7 +368,7 @@ export default function ProductDetailsPage() {
                         <div id="reviews" className="mb-32">
                             <div className="flex items-center justify-between mb-12">
                                 <div>
-                                    <h3 className="text-4xl font-display font-black tracking-tight mb-2 italic">Client Testimonials</h3>
+                                    <h3 className="text-4xl font-sans font-black tracking-tight mb-2">Client Testimonials</h3>
                                     <p className="text-white/40 font-bold uppercase tracking-[0.2em] text-[10px]">Real feedback from our premium community</p>
                                 </div>
                                 <div className="text-right">
@@ -309,7 +389,7 @@ export default function ProductDetailsPage() {
                                                     <Star key={i} className={cn("w-3 h-3", i < review.rating ? "text-primary fill-primary" : "text-white/10")} />
                                                 ))}
                                             </div>
-                                            <span className="text-white/20 text-[10px] font-bold uppercase tracking-widest italic">{review.date}</span>
+                                            <span className="text-white/20 text-[10px] font-bold uppercase tracking-widest">{review.date}</span>
                                         </div>
                                         <p className="text-white/80 font-medium mb-8 flex-1 leading-relaxed">"{review.comment}"</p>
                                         <div className="flex items-center justify-between pt-6 border-t border-white/5">
@@ -339,7 +419,7 @@ export default function ProductDetailsPage() {
                         {/* --- RECOMMENDED SECTION --- */}
                         <div className="mb-10">
                             <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-3xl font-display font-black tracking-tight italic">Recommended Drops</h3>
+                                <h3 className="text-3xl font-sans font-black tracking-tight">Recommended Drops</h3>
                                 <button onClick={() => router.push('/store')} className="text-primary text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-2 group">
                                     Explore Store
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -373,6 +453,17 @@ export default function ProductDetailsPage() {
                 )}
                 <MobileNav />
             </main>
+
+            {/* Order Success Modal */}
+            {product && (
+                <OrderSuccessModal
+                    isOpen={isOrderSuccessOpen}
+                    onClose={() => setIsOrderSuccessOpen(false)}
+                    productName={product.name}
+                    productPrice={product.price}
+                    productImageUrl={product.image_url}
+                />
+            )}
         </div>
     );
 }

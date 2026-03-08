@@ -23,6 +23,7 @@ export function VideoPlayer({ reel, isActive, onProductClick, onNext, onPrev }: 
     const [isMuted, setIsMuted] = useState(true);
     const [currentTime, setCurrentTime] = useState(0);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+    const [showCopied, setShowCopied] = useState(false);
 
     // Monitor when this item is primarily in view
     const entry = useIntersectionObserver(containerRef, {
@@ -51,6 +52,37 @@ export function VideoPlayer({ reel, isActive, onProductClick, onNext, onPrev }: 
         } else {
             videoRef.current.play();
             setIsPlaying(true);
+        }
+    };
+
+    const handleShare = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        const shareUrl = `${window.location.origin}/reels?reelId=${reel.id}`;
+        const shareData = {
+            title: 'ReelShop - Checkout this Reel!',
+            text: reel.caption || 'Look what I found on ReelShop!',
+            url: shareUrl,
+        };
+
+        try {
+            if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                setShowCopied(true);
+                setTimeout(() => setShowCopied(false), 2000);
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+            // Fallback to clipboard if share fails
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setShowCopied(true);
+                setTimeout(() => setShowCopied(false), 2000);
+            } catch (err) {
+                console.error('Final share fallback failed:', err);
+            }
         }
     };
 
@@ -129,11 +161,21 @@ export function VideoPlayer({ reel, isActive, onProductClick, onNext, onPrev }: 
                 <span className="text-white font-semibold text-xs shadow-black drop-shadow-md">124</span>
             </div>
 
-            <div className="flex flex-col items-center gap-1 group">
-                <button className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white md:hover:bg-white/20 active:scale-90 transition-all shadow-lg">
+            <div className="flex flex-col items-center gap-1 group relative">
+                <button
+                    onClick={handleShare}
+                    className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white md:hover:bg-white/20 active:scale-90 transition-all shadow-lg pointer-events-auto"
+                >
                     <Share2 className="w-6 h-6 md:w-7 md:h-7 drop-shadow-md" />
                 </button>
                 <span className="text-white font-semibold text-xs shadow-black drop-shadow-md">{reel.shares || 'Share'}</span>
+
+                {/* Copied Feedback */}
+                {showCopied && (
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-xl animate-bounce whitespace-nowrap z-50">
+                        Copied!
+                    </div>
+                )}
             </div>
 
             <div className="flex flex-col items-center gap-1 group">
@@ -214,7 +256,7 @@ export function VideoPlayer({ reel, isActive, onProductClick, onNext, onPrev }: 
                 </div>
 
                 {/* MOBILE ONLY Right Actions */}
-                <div className="md:hidden absolute right-4 bottom-36 z-10 flex flex-col gap-6 items-center pointer-events-auto">
+                <div className="md:hidden absolute right-4 bottom-36 z-10 flex flex-col gap-5 items-center pointer-events-auto">
                     {actionButtons}
                 </div>
             </div>
@@ -222,7 +264,7 @@ export function VideoPlayer({ reel, isActive, onProductClick, onNext, onPrev }: 
             {/* --- DESKTOP RIGHT ACTIONS COLUMN --- */}
             <div className="hidden md:flex flex-1 justify-start items-end h-[85vh] max-h-[850px] pointer-events-none">
                 <div className="flex flex-col w-[64px] shrink-0 items-center justify-end gap-6 pointer-events-auto">
-                    <div className="flex flex-col gap-5 bg-black/40 border border-white/10 py-5 rounded-full backdrop-blur-3xl shadow-2xl items-center mb-2 w-full">
+                    <div className="flex flex-col gap-5 bg-black/40 border border-white/[0.08] py-5 rounded-full backdrop-blur-3xl shadow-2xl items-center mb-2 w-full">
                         {actionButtons}
                     </div>
 

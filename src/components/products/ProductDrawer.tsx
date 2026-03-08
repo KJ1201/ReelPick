@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ShoppingBag, X, Loader2, ArrowRight } from 'lucide-react';
+import { ShoppingBag, X, Loader2, ArrowRight, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
@@ -64,17 +64,17 @@ export function ProductDrawer({ productId, isOpen, onClose }: ProductDrawerProps
             {/* Slide-Up Drawer */}
             <div
                 className={cn(
-                    "fixed bottom-0 bg-ink-80 border-t border-white/10 rounded-t-[40px] z-[100] shadow-[0_-12px_64px_rgba(0,0,0,0.9)] transition-transform duration-500 ease-[cubic-bezier(0.25, 1, 0.5, 1)] flex flex-col",
+                    "fixed bottom-0 bg-ink-80 border-t border-white/[0.08] rounded-t-[24px] z-[100] shadow-[0_-8px_48px_rgba(0,0,0,0.80)] transition-transform duration-500 ease-[cubic-bezier(0.25, 1, 0.5, 1)] flex flex-col",
                     "left-0 right-0 w-full",
                     "md:left-1/2 md:right-auto md:w-[450px] md:-translate-x-1/2 md:border-x",
                     isOpen ? "translate-y-0" : "translate-y-[100%]"
                 )}
-                style={{ height: '65dvh' }}
+                style={{ height: '72dvh' }}
             >
                 {/* Drag / Handle Bar */}
                 <div className="w-12 h-1.5 rounded-full bg-white/10 mx-auto my-4 shrink-0" />
 
-                <div className="flex-1 overflow-y-auto px-8 pb-32 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto px-6 pb-32 custom-scrollbar">
                     {isLoading || !product ? (
                         <div className="w-full h-full flex flex-col items-center justify-center gap-4 py-20">
                             <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -132,7 +132,10 @@ export function ProductDrawer({ productId, isOpen, onClose }: ProductDrawerProps
                                     </div>
                                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
                                         <span className="text-white/40 text-[9px] font-bold uppercase tracking-widest block mb-1">Delivery</span>
-                                        <span className="text-white text-sm font-bold flex items-center gap-1">Fast <span className="text-green-400 font-black">FREE</span></span>
+                                        <span className="text-white text-[10px] font-bold flex items-center gap-1.5 mt-1">
+                                            <Truck className="w-3 h-3 text-primary" />
+                                            Standard (3-5 Days)
+                                        </span>
                                     </div>
                                 </div>
                             </div>

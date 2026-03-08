@@ -14,8 +14,20 @@ export function VideoFeed({ initialReels, onProductClick }: VideoFeedProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Intersection Observer to detect which video is currently fully visible in the viewport
-    // to update the activeIndex. This ensures we don't play off-screen videos.
+    useEffect(() => {
+        // Deep linking: If reelId is in URL, scroll to it
+        const params = new URLSearchParams(window.location.search);
+        const reelId = params.get('reelId');
+        if (reelId) {
+            const index = reels.findIndex(r => r.id === reelId);
+            if (index !== -1) {
+                setActiveIndex(index);
+                if (containerRef.current) {
+                    containerRef.current.scrollTop = index * window.innerHeight;
+                }
+            }
+        }
+    }, [reels]);
 
     useEffect(() => {
         // Basic setup for updating active index based on scroll position

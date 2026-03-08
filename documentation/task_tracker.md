@@ -4,19 +4,33 @@ This document tracks the execution phases of the ReelShop MVP built for the hack
 
 ## 📋 To Do
 
-### Phase 6: Personalization & Final Polish
-- [ ] Build Style Quiz for onboarding
-- [ ] Add loading skeletons, error boundaries, and empty states
-- [ ] Final UI/UX Refinement (Animations, Glassmorphism checks against `design.json`)
+### Phase 8: Production Launch Readiness (Gap Closure)
+- [ ] **Video Optimization**: Implement HLS streaming or advanced video compression for faster feed loading
+- [ ] **Real Payment Gateway**: Transition Razorpay from Sandbox to Production-ready API
+- [ ] **Order Tracking**: Build a real order history page for shoppers
+- [ ] **Internationalization**: Support for multiple languages (Hindi, etc.) as per PRD
+- [ ] **Live Deployment**: Deploy to production Vercel domain with SSL
 
 ## ⏳ In Progress
+### Phase 7: Final Polish
+- [ ] UI Consistency Audit (Mobile vs Desktop padding)
+- [ ] Content Moderation pipeline (basic filter for uploads)
+
+## ✅ Done
+### Phase 6: Production Refinement (Post-AI Removal)
+- [x] **Deep Linking**: Implemented "Share" button for Reels and Products with dynamic URLs
+- [x] **Product Access**: Restricted inventory management to "Existing Products Only" (Users can no longer list new products, but can create reels for the available catalog)
+- [x] **User Authentication**: Integrated Supabase Auth for secure Seller access and profile management
+- [x] **AI Removal**: Scrubbed all AI features (Try-On, Caption Gen, etc.) to focus on core commerce
+
+## ✅ Done
 ### Phase 5: Seller Studio (Content Management)
 - [x] Design Seller Dashboard UI
 - [x] Separate Product Listing from Reel Creation flow (DONE)
 - [x] Implement Reel publishing flow (upload to Supabase Storage - DONE)
 - [x] Multi-table database insertion (Products + Reels - DONE)
 - [x] Seeded professional fashion content for Demo (DONE)
-- [ ] Implement video thumbnail generation
+- [x] Implement video thumbnail generation (DONE)
 
 ## ✅ Done
 ### Phase 4: Cart, Checkout & Payments

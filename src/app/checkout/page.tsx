@@ -6,13 +6,34 @@ import { CreditCard, Lock, ShieldCheck, MapPin, Phone, Mail, ChevronLeft, Loader
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { useEffect } from 'react';
+
 export default function CheckoutPage() {
     const router = useRouter();
+    const { showToast } = useToast();
+    const { user, loading } = useAuth();
     const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push(`/auth?next=${encodeURIComponent(window.location.pathname)}`);
+        }
+    }, [user, loading, router]);
+
+    if (loading || !user) {
+        return (
+            <div className="w-full h-[100dvh] bg-black flex items-center justify-center">
+                <Loader2 className="w-10 h-10 animate-spin text-white/10" />
+            </div>
+        );
+    }
 
     const handleConfirm = () => {
         setIsProcessing(true);
         setTimeout(() => {
+            showToast('Order synchronized successfully!', 'premium');
             router.push('/cart'); // In a real app we'd go to success
         }, 3000);
     };
@@ -27,7 +48,7 @@ export default function CheckoutPage() {
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <div className="text-center">
-                        <h1 className="text-3xl font-display font-black tracking-tight mb-1">Checkout</h1>
+                        <h1 className="text-3xl font-sans font-black tracking-tight mb-1">Checkout</h1>
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30">Secure Transaction Node</p>
                     </div>
                     <div className="w-12 h-12" />

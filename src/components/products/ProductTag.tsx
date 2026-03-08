@@ -27,7 +27,7 @@ export function ProductTag({ tag, isActive, onClick }: ProductTagProps) {
         >
             <div className="relative flex items-center justify-center cursor-pointer">
                 {/* Outer pulsing ring */}
-                <div className="absolute w-10 h-10 rounded-full bg-white/15 backdrop-blur-md border border-white/30 animate-pulse-full" />
+                <div className="absolute w-10 h-10 rounded-full bg-white/15 backdrop-blur-[8px] border-[1.5px] border-white/30 animate-pulse-full" />
 
                 {/* Inner solid dot */}
                 <div className="relative w-3 h-3 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />

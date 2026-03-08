@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Video, Upload, CheckCircle2, Ghost, ChevronLeft, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Video, Upload, CheckCircle2, ChevronLeft, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { generateVideoThumbnail, dataURLtoBlob } from '@/lib/videoUtils';
+import { useToast } from '@/context/ToastContext';
 
 // Mock seller for demo purposes
 const DEMO_SELLER_ID = '00000000-0000-0000-0000-000000000001';
@@ -16,6 +19,8 @@ interface SellerStudioProps {
 }
 
 export function SellerStudio({ productId, productName, onBack, onSuccess }: SellerStudioProps) {
+    const { user } = useAuth();
+    const { showToast } = useToast();
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishStatus, setPublishStatus] = useState<'IDLE' | 'UPLOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
 
@@ -42,38 +47,54 @@ export function SellerStudio({ productId, productName, onBack, onSuccess }: Sell
         setPublishStatus('UPLOADING');
 
         try {
-            // 1. Upload Video to Supabase Storage
+            // 1. Generate Thumbnail
+            const thumbnailDataUrl = await generateVideoThumbnail(videoFile);
+            const thumbnailBlob = await dataURLtoBlob(thumbnailDataUrl);
+
+            // 2. Upload to Supabase Storage
+            const timestamp = Date.now();
             const fileExt = videoFile.name.split('.').pop();
-            const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-            const filePath = `reels/${fileName}`;
+            const videoFileName = `video_${timestamp}.${fileExt}`;
+            const thumbnailFileName = `thumb_${timestamp}.jpg`;
 
-            const { error: uploadError } = await supabase.storage
+            // Upload Video
+            const { error: videoError } = await supabase.storage
                 .from('reels')
-                .upload(filePath, videoFile);
+                .upload(`reels/${videoFileName}`, videoFile);
+            if (videoError) throw videoError;
 
-            if (uploadError) throw uploadError;
-
-            // Get Public URL
-            const { data: { publicUrl } } = supabase.storage
+            // Upload Thumbnail
+            const { error: thumbError } = await supabase.storage
                 .from('reels')
-                .getPublicUrl(filePath);
+                .upload(`reels/${thumbnailFileName}`, thumbnailBlob, { contentType: 'image/jpeg' });
+            if (thumbError) throw thumbError;
 
-            // 2. Create Reel Entry
+            // Get Public URLs
+            const { data: { publicUrl: videoUrl } } = supabase.storage
+                .from('reels')
+                .getPublicUrl(`reels/${videoFileName}`);
+
+            const { data: { publicUrl: thumbUrl } } = supabase.storage
+                .from('reels')
+                .getPublicUrl(`reels/${thumbnailFileName}`);
+
+            // 3. Create Reel Entry
             const reel_id = `reel_${Math.random().toString(36).substring(2, 8)}`;
             const { error: reelError } = await supabase
                 .from('reels')
                 .insert({
                     id: reel_id,
-                    video_url: publicUrl,
+                    video_url: videoUrl,
+                    thumbnail_url: thumbUrl,
                     caption: caption || `Checkout our new ${productName}!`,
-                    seller_id: DEMO_SELLER_ID,
+                    seller_id: user?.id,
                     likes_count: 0,
                     shares_count: 0
                 });
 
             if (reelError) throw reelError;
 
-            // 3. Create Tag Link
+            // 4. Create Tag Link
             const { error: tagError } = await supabase
                 .from('reel_tags')
                 .insert({
@@ -95,14 +116,14 @@ export function SellerStudio({ productId, productName, onBack, onSuccess }: Sell
         } catch (error: any) {
             console.error("Publishing error:", error);
             setPublishStatus('ERROR');
-            window.alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         } finally {
             setIsPublishing(false);
         }
     };
 
     return (
-        <div className="flex flex-col h-full animate-fade-in">
+        <div className="flex flex-col h-full animate-fade-in relative">
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
                 {onBack && (
@@ -120,53 +141,51 @@ export function SellerStudio({ productId, productName, onBack, onSuccess }: Sell
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
-                {/* Video Picker */}
-                <div className="space-y-4">
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">Video Content</label>
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        accept="video/*"
-                        className="hidden"
-                    />
+                {/* Left: Media Picker */}
+                <div className="space-y-6">
+                    <div className="space-y-4">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">
+                            Reel Video
+                        </label>
 
-                    {!videoPreview ? (
-                        <div
-                            onClick={() => fileInputRef.current?.click()}
-                            className="aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 transition-all group"
-                        >
-                            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Upload className="w-8 h-8 text-white/50" />
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="video/*" className="hidden" />
+                        {!videoPreview ? (
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/5 transition-all group"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Upload className="w-8 h-8 text-white/50" />
+                                </div>
+                                <div className="text-center px-6">
+                                    <p className="font-semibold text-sm">Upload Reel</p>
+                                    <p className="text-[10px] text-white/30 mt-1">MP4/MOV • 9:16 recommended</p>
+                                </div>
                             </div>
-                            <div className="text-center px-6">
-                                <p className="font-semibold text-sm">Upload Reel</p>
-                                <p className="text-[10px] text-white/30 mt-1">MP4/MOV • 9:16 recommended</p>
+                        ) : (
+                            <div className="aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl overflow-hidden border border-white/10 relative group bg-black shadow-2xl">
+                                <video src={videoPreview} className="w-full h-full object-cover" autoPlay loop muted />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="px-4 py-2 rounded-full bg-white text-black text-xs font-bold shadow-xl active:scale-95 transition-transform"
+                                    >
+                                        Change Video
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <div className="aspect-[9/16] w-full max-w-[280px] mx-auto rounded-3xl overflow-hidden border border-white/10 relative group bg-black shadow-2xl">
-                            <video src={videoPreview} className="w-full h-full object-cover" autoPlay loop muted />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="px-4 py-2 rounded-full bg-white text-black text-xs font-bold shadow-xl active:scale-95 transition-transform"
-                                >
-                                    Change Video
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
-                {/* Caption & Publish */}
+                {/* Right: Caption & Publish */}
                 <div className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">Viral Caption</label>
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-white/40 ml-1">Caption</label>
                         <textarea
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
-                            placeholder={`e.g. You need to see this ${productName} in action! 🔥 #newdrop #fashion`}
+                            placeholder={`e.g. You need to see this ${productName} in action! \ud83d\udd25 #newdrop #fashion`}
                             className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 resize-none placeholder:text-white/20"
                         />
                     </div>
